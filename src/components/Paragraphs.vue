@@ -18,7 +18,7 @@
     .then((response) => response.json())
     .then((data) => {
       if (data.error && data.error.status == 401) {
-        $emit('redirect');
+        emit('redirect');
       } else {
         paragraphs.value = data.data;
       }

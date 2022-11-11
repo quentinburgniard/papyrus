@@ -65,7 +65,7 @@
         </form>
       </div>
       <div class="col">
-        <Letter/>
+        <Letter :token="token" @redirect="redirect"/>
       </div>
     </div>
   </div>
