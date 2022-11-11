@@ -6,6 +6,7 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
+    "bootstrap-icons": "1.x",
     "vue": "3.x"
   },
   "devDependencies": {
