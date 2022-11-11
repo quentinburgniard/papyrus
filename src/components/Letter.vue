@@ -5,17 +5,20 @@
   const emit = defineEmits();
   const loading = ref(false);
   const props = defineProps(['token']);
+  const letterID = ref(getLetterID() || '');
   const localParagraphs = ref([]);
   const paragraphs = ref([]);
 
-  watch(
+  if (letterID.value) getLetter(letterID.value);
+
+  /*watch(
     localParagraphs,
     (newLocalParagraphs, oldLocalParagraphs) => {
       console.log('watch');
       loading.value = true;
     },
     { deep: true }
-  )
+  )*/
 
   function drop(event) {
     let ID = event.dataTransfer.getData('id');
@@ -26,13 +29,37 @@
           text: event.dataTransfer.getData('text')
         }
       })
-      syncLetter(localStorage.getItem('letter'));
+      syncLetter(letterID);
     }
+  }
+
+  function getLetter(ID) {
+    fetch('https://api.digitalleman.com/v2/letters/' + ID + '?populate=paragraphs', {
+      headers: {
+        'authorization': `Bearer ${props.token}`,
+        'content-type': 'application/json'
+      }
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.error && [401, 403].includes(data.error.status)) {
+        console.log('emit');
+        emit('redirect');
+      } else {
+        paragraphs.value = data.data.attributes.paragraphs.data;
+        localParagraphs.value = paragraphs.value;
+        loading = false;
+      }
+    });
+  }
+
+  function getLetterID() {
+    return localStorage.getItem('letter');
   }
 
   function syncLetter(ID) {
     ID = ID ? '/' + ID : '';
-    fetch('https://api.digitalleman.com/v2/letters' + ID, {
+    fetch('https://api.digitalleman.com/v2/letters' + ID + '?populate=paragraphs', {
       body: JSON.stringify({
         data: {
           paragraphs: localParagraphs.value.map(paragraph => paragraph.id)
@@ -46,11 +73,11 @@
     })
     .then((response) => response.json())
     .then((data) => {
-      if (data.error && data.error.status == 401) {
+      if (data.error && [401, 403].includes(data.error.status)) {
         emit('redirect');
       } else {
         localStorage.setItem('letter', data.data.id);
-        paragraphs.value = localParagraphs.value;
+        paragraphs.value = data.data.attributes.paragraphs.data;
         loading.value = false;
       }
     })
@@ -64,7 +91,8 @@
         <div class="spinner-border text-dark" role="status"></div>
       </div>
     </div>
-    <Paragraph v-for="paragraph in localParagraphs" :key="paragraph.id" :paragraph="paragraph"/>
+    <Paragraph v-for="paragraph in paragraphs" v-show="!loading" :key="paragraph.id" :paragraph="paragraph"/>
+    <Paragraph v-for="paragraph in localParagraphs" v-show="loading" :key="paragraph.id" :paragraph="paragraph"/>
     <div class="text-right">
       <i class="bi bi-clipboard"></i>
     </div>
