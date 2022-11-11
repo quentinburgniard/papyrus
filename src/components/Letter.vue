@@ -29,7 +29,7 @@
           text: event.dataTransfer.getData('text')
         }
       })
-      syncLetter(letterID);
+      syncLetter(letterID.value);
     }
   }
 
@@ -48,7 +48,7 @@
       } else {
         paragraphs.value = data.data.attributes.paragraphs.data;
         localParagraphs.value = paragraphs.value;
-        loading = false;
+        loading.value = false;
       }
     });
   }
