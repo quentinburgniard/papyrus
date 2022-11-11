@@ -16,7 +16,7 @@
           }
         }),
         headers: {
-          'authorization': `Bearer  ${token.value}`,
+          'authorization': `Bearer ${token.value}`,
           'content-type': 'application/json'
         },
         method: 'POST'
@@ -24,7 +24,7 @@
       .then((response) => response.json())
       .then((data) => {
         if (data.error && data.error.status == 401) {
-          //redirect();
+          redirect();
         }
       });   
     } else {
@@ -33,7 +33,7 @@
   }
 
   function redirect() {
-    window.location.href = 'https://id.digitalleman.com?r=http%3A%2F%2F127.0.0.1%3A5173';
+    window.location.href = 'https://id.digitalleman.com?r=papyrus.digitalleman.com';
   }
 
   function getToken() {
